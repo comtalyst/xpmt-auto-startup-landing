@@ -1,17 +1,303 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
 
+const title = "XPMT Auto Startup";
+const description = "A sleek, reliable startup landing that gets users to value fast — with modern design, strong typography, and responsive sections.";
+
+const faqs = [
+  {
+    q: "What is XPMT Auto Startup?",
+    a: "A lightweight landing experience designed to help users start faster. It focuses on clarity, speed, and a polished first impression.",
+  },
+  {
+    q: "Is this optimized for mobile?",
+    a: "Yes. The layout is fully responsive, uses fluid spacing, and keeps the CTA visible and readable on smaller screens.",
+  },
+  {
+    q: "Can I customize colors, copy, and sections?",
+    a: "Absolutely. The page is composed of clear sections and Tailwind utility classes, so it’s easy to adjust design and content.",
+  },
+  {
+    q: "Does it build cleanly with Astro + Tailwind?",
+    a: "Yes — global styles are wired through a layout and Tailwind is configured via Vite plugin for Astro.",
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={title} description={description}>
+  <header class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-40 left-1/2 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-blue-600/25 blur-[120px]"></div>
+      <div class="absolute -bottom-56 left-1/2 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-cyan-500/15 blur-[140px]"></div>
+      <div class="absolute inset-0 opacity-[0.35] bg-grid"></div>
+    </div>
+
+    <nav class="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <a href="#" class="group inline-flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-blue-600/20 ring-1 ring-blue-400/25">
+          <span class="h-2.5 w-2.5 rounded-full bg-blue-400 shadow-[0_0_25px_rgba(96,165,250,0.8)]"></span>
+        </span>
+        <span class="text-sm font-semibold tracking-wide text-neutral-100">
+          XPMT<span class="text-blue-300">·</span>Auto Startup
+        </span>
+      </a>
+
+      <div class="hidden items-center gap-6 md:flex">
+        <a class="text-sm text-neutral-300 hover:text-neutral-100" href="#features">Features</a>
+        <a class="text-sm text-neutral-300 hover:text-neutral-100" href="#proof">Social proof</a>
+        <a class="text-sm text-neutral-300 hover:text-neutral-100" href="#faq">FAQ</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a
+          class="hidden rounded-full px-4 py-2 text-sm text-neutral-300 ring-1 ring-white/10 hover:bg-white/5 hover:text-neutral-100 md:inline-flex"
+          href="#cta"
+        >
+          Contact
+        </a>
+        <a
+          class="inline-flex items-center justify-center rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-neutral-950 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_40px_rgba(59,130,246,0.25)] hover:bg-blue-400"
+          href="#cta"
+        >
+          Get started
+        </a>
+      </div>
+    </nav>
+
+    <div class="relative mx-auto max-w-6xl px-6 pb-20 pt-10 md:pb-28 md:pt-16">
+      <div class="mx-auto max-w-3xl text-center">
+        <p class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs text-neutral-300 ring-1 ring-white/10">
+          <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
+          Modern Astro + Tailwind starter landing
+        </p>
+        <h1 class="mt-6 text-balance text-4xl font-semibold tracking-tight text-neutral-50 md:text-6xl">
+          Launch your startup experience with <span class="text-blue-300">speed</span>, clarity, and polish.
+        </h1>
+        <p class="mt-5 text-pretty text-base leading-relaxed text-neutral-300 md:text-lg">
+          A clean, black-and-blue landing page that highlights value fast — built with Astro + Tailwind, wired with a shared layout and global styles.
+        </p>
+
+        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            href="#cta"
+            class="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-neutral-950 hover:bg-blue-400 sm:w-auto"
+          >
+            Request access
+          </a>
+          <a
+            href="#features"
+            class="inline-flex w-full items-center justify-center rounded-xl bg-white/5 px-6 py-3 text-sm font-semibold text-neutral-100 ring-1 ring-white/10 hover:bg-white/10 sm:w-auto"
+          >
+            See features
+          </a>
+        </div>
+
+        <div class="mt-10 grid grid-cols-1 gap-4 text-left sm:grid-cols-3">
+          <div class="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <p class="text-sm font-semibold text-neutral-100">Fast dev loop</p>
+            <p class="mt-1 text-sm text-neutral-300">Astro pages + Tailwind utilities for quick iteration.</p>
+          </div>
+          <div class="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <p class="text-sm font-semibold text-neutral-100">Solid structure</p>
+            <p class="mt-1 text-sm text-neutral-300">Reusable layout, global styles, and clear sections.</p>
+          </div>
+          <div class="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <p class="text-sm font-semibold text-neutral-100">Modern aesthetic</p>
+            <p class="mt-1 text-sm text-neutral-300">Black canvas, blue glow, crisp typography.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-14 flex items-center justify-center gap-6 text-xs text-neutral-400">
+        <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> Lighthouse-friendly</span>
+        <span class="hidden h-4 w-px bg-white/10 sm:block"></span>
+        <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span> Responsive by default</span>
+        <span class="hidden h-4 w-px bg-white/10 sm:block"></span>
+        <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span> Accessible components</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="relative">
+    <section id="features" class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+      <div class="max-w-2xl">
+        <h2 class="text-2xl font-semibold tracking-tight text-neutral-50 md:text-3xl">Built for momentum</h2>
+        <p class="mt-3 text-neutral-300">
+          Everything you need for a strong first impression — without heavy frameworks or complex setup.
+        </p>
+      </div>
+
+      <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
+          <p class="text-sm font-semibold text-neutral-100">Hero that converts</p>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-300">Clear value prop, sharp CTAs, and a high-contrast visual style.</p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
+          <p class="text-sm font-semibold text-neutral-100">Feature grid</p>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-300">Explain benefits quickly with a clean, scannable layout.</p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
+          <p class="text-sm font-semibold text-neutral-100">Social proof</p>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-300">Logos, metrics, and testimonials to build trust.</p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
+          <p class="text-sm font-semibold text-neutral-100">FAQ baked in</p>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-300">Answer objections before they become drop-offs.</p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
+          <p class="text-sm font-semibold text-neutral-100">Clean layout wiring</p>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-300">Global CSS imported once via the layout for consistency.</p>
+        </div>
+        <div class="rounded-2xl bg-white/5 p-6 ring-1 ring-white/10">
+          <p class="text-sm font-semibold text-neutral-100">Tailwind v4</p>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-300">Modern utility-first styles, fast iteration, minimal config.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="proof" class="border-y border-white/10 bg-white/[0.03]">
+      <div class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <div class="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-2xl">
+            <h2 class="text-2xl font-semibold tracking-tight text-neutral-50 md:text-3xl">Trusted by teams who ship</h2>
+            <p class="mt-3 text-neutral-300">
+              Add real logos and quotes when available. The structure is already in place.
+            </p>
+          </div>
+          <div class="grid grid-cols-3 gap-3 text-xs text-neutral-400 sm:text-sm">
+            <div class="rounded-2xl bg-white/5 px-4 py-3 ring-1 ring-white/10">
+              <p class="font-semibold text-neutral-100">99.9%</p>
+              <p class="mt-1">uptime target</p>
+            </div>
+            <div class="rounded-2xl bg-white/5 px-4 py-3 ring-1 ring-white/10">
+              <p class="font-semibold text-neutral-100">2×</p>
+              <p class="mt-1">faster setup</p>
+            </div>
+            <div class="rounded-2xl bg-white/5 px-4 py-3 ring-1 ring-white/10">
+              <p class="font-semibold text-neutral-100">5 min</p>
+              <p class="mt-1">to deploy</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-10 grid gap-6 lg:grid-cols-3">
+          <figure class="rounded-2xl bg-neutral-950/60 p-6 ring-1 ring-white/10">
+            <blockquote class="text-sm leading-relaxed text-neutral-300">
+              “The design is crisp, the content is clear, and the sections feel intentional. Great starting point.”
+            </blockquote>
+            <figcaption class="mt-4 text-xs text-neutral-400">
+              <span class="font-semibold text-neutral-200">Product Lead</span> · Early-stage SaaS
+            </figcaption>
+          </figure>
+          <figure class="rounded-2xl bg-neutral-950/60 p-6 ring-1 ring-white/10">
+            <blockquote class="text-sm leading-relaxed text-neutral-300">
+              “Astro + Tailwind is a perfect combo here: fast, simple, and easy to customize.”
+            </blockquote>
+            <figcaption class="mt-4 text-xs text-neutral-400">
+              <span class="font-semibold text-neutral-200">Frontend Engineer</span> · Startup team
+            </figcaption>
+          </figure>
+          <figure class="rounded-2xl bg-neutral-950/60 p-6 ring-1 ring-white/10">
+            <blockquote class="text-sm leading-relaxed text-neutral-300">
+              “We could drop in our copy, connect a form, and be live the same day.”
+            </blockquote>
+            <figcaption class="mt-4 text-xs text-neutral-400">
+              <span class="font-semibold text-neutral-200">Founder</span> · Builder mode
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="mt-12 grid grid-cols-2 gap-4 opacity-90 sm:grid-cols-3 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div class="grid place-items-center rounded-2xl bg-white/5 px-4 py-3 text-xs text-neutral-400 ring-1 ring-white/10" aria-hidden="true">
+              LOGO {i + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="cta" class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500/15 via-white/5 to-cyan-400/10 p-8 ring-1 ring-white/10 md:p-12">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+          <div class="absolute -right-20 -top-20 h-[240px] w-[240px] rounded-full bg-blue-500/25 blur-[80px]"></div>
+          <div class="absolute -left-20 -bottom-24 h-[260px] w-[260px] rounded-full bg-cyan-400/20 blur-[90px]"></div>
+        </div>
+
+        <div class="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div class="max-w-2xl">
+            <h2 class="text-2xl font-semibold tracking-tight text-neutral-50 md:text-3xl">
+              Ready to ship a landing that feels premium?
+            </h2>
+            <p class="mt-3 text-neutral-300">
+              Swap in your real product details, connect your signup flow, and deploy.
+            </p>
+          </div>
+
+          <form class="relative grid w-full gap-3 sm:grid-cols-[1fr_auto] lg:w-[420px]">
+            <label class="sr-only" for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@company.com"
+              class="h-11 w-full rounded-xl bg-neutral-950/70 px-4 text-sm text-neutral-100 ring-1 ring-white/10 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              type="button"
+              class="h-11 rounded-xl bg-blue-500 px-5 text-sm font-semibold text-neutral-950 hover:bg-blue-400"
+            >
+              Notify me
+            </button>
+            <p class="sm:col-span-2 text-xs text-neutral-400">No spam. Replace with your real form handler.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="mx-auto max-w-6xl px-6 pb-20 md:pb-28">
+      <div class="max-w-2xl">
+        <h2 class="text-2xl font-semibold tracking-tight text-neutral-50 md:text-3xl">FAQ</h2>
+        <p class="mt-3 text-neutral-300">Short answers to common questions.</p>
+      </div>
+
+      <div class="mt-10 grid gap-4">
+        {faqs.map((item) => (
+          <details class="group rounded-2xl bg-white/5 p-5 ring-1 ring-white/10 open:bg-white/[0.07]">
+            <summary class="cursor-pointer list-none text-sm font-semibold text-neutral-100">
+              <span class="inline-flex items-center justify-between gap-4">
+                <span>{item.q}</span>
+                <span class="text-neutral-400 group-open:rotate-45 transition-transform">+</span>
+              </span>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-neutral-300">{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-6 py-10">
+      <div class="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-sm font-semibold text-neutral-100">XPMT Auto Startup</p>
+          <p class="mt-2 text-sm text-neutral-400">© {new Date().getFullYear()} · Built with Astro + Tailwind</p>
+        </div>
+
+        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          <a class="text-neutral-400 hover:text-neutral-100" href="#features">Features</a>
+          <a class="text-neutral-400 hover:text-neutral-100" href="#proof">Social proof</a>
+          <a class="text-neutral-400 hover:text-neutral-100" href="#faq">FAQ</a>
+          <a class="text-neutral-400 hover:text-neutral-100" href="#cta">Get started</a>
+        </div>
+      </div>
+
+      <div class="mt-10 flex items-center justify-between border-t border-white/10 pt-6 text-xs text-neutral-500">
+        <p>Designed for clarity and speed.</p>
+        <p class="hidden sm:block">Black/blue theme · Responsive · Accessible</p>
+      </div>
+    </div>
+  </footer>
+</BaseLayout>
