@@ -90,7 +90,7 @@ const description = "A modern Hacker News reader: top/new/best feeds, caching, a
   </main>
 
   <script type="module">
-    import { fetchFeedItems, formatRelativeTime, hnCommentsUrl, hnItemUrl, setCachedJson } from "../lib/hn";
+    import { fetchFeedItems, formatRelativeTime, hnCommentsUrl, hnItemUrl, removeCached } from "../lib/hn";
 
     const listEl = document.getElementById('list');
     const footerEl = document.getElementById('list-footer');
@@ -324,8 +324,8 @@ const description = "A modern Hacker News reader: top/new/best feeds, caching, a
 
       try {
         if (bustCache) {
-          // best-effort: overwrite cached ids so next load refetches
-          setCachedJson(`ids:${feed}`, []);
+          // Best-effort: force refetch by evicting the cached id list for this feed.
+          removeCached(`ids:${feed}`);
         }
         items = await fetchFeedItems({ feed, limit: 30, concurrency: 10, ttlMs: 5 * 60 * 1000, abort: controller.signal });
         // Defensive: remove nulls (HN can return null for deleted items)

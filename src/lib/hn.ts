@@ -47,6 +47,14 @@ export function setCachedJson<T>(key: string, value: T) {
   }
 }
 
+export function removeCached(key: string) {
+  try {
+    localStorage.removeItem(cacheKey(key));
+  } catch {
+    // ignore
+  }
+}
+
 async function fetchJson<T>(url: string, abort?: AbortSignal): Promise<T> {
   const res = await fetch(url, { signal: abort });
   if (!res.ok) throw new Error(Request failed:  );
