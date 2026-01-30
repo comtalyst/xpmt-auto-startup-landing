@@ -1,0 +1,363 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const title = "Modern HN Reader";
+const description = "A modern Hacker News reader: top/new/best feeds, caching, and a lightweight reader view.";
+---
+
+<BaseLayout title={title} description={description}>
+  <header class="relative overflow-hidden border-b border-white/10">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+      <div class="absolute -top-44 left-1/2 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[120px]"></div>
+      <div class="absolute -bottom-72 left-1/2 h-[520px] w-[920px] -translate-x-1/2 rounded-full bg-cyan-500/10 blur-[140px]"></div>
+      <div class="absolute inset-0 opacity-[0.25] bg-grid"></div>
+    </div>
+
+    <nav class="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      <a href="/" class="group inline-flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-blue-600/20 ring-1 ring-blue-400/25">
+          <span class="h-2.5 w-2.5 rounded-full bg-blue-400 shadow-[0_0_25px_rgba(96,165,250,0.8)]"></span>
+        </span>
+        <span class="text-sm font-semibold tracking-wide text-neutral-100">
+          XPMT<span class="text-blue-300">·</span>HN Reader
+        </span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <a
+          href="https://news.ycombinator.com/"
+          target="_blank"
+          rel="noreferrer"
+          class="hidden rounded-full px-4 py-2 text-sm text-neutral-300 ring-1 ring-white/10 hover:bg-white/5 hover:text-neutral-100 sm:inline-flex"
+        >
+          Open HN
+        </a>
+        <a
+          href="/"
+          class="inline-flex items-center justify-center rounded-full bg-blue-500 px-4 py-2 text-sm font-semibold text-neutral-950 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_40px_rgba(59,130,246,0.25)] hover:bg-blue-400"
+        >
+          Back to landing
+        </a>
+      </div>
+    </nav>
+
+    <div class="relative mx-auto max-w-6xl px-6 pb-10">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 class="text-balance text-2xl font-semibold tracking-tight text-neutral-50 sm:text-3xl">Modern HN Reader</h1>
+          <p class="mt-2 max-w-2xl text-sm text-neutral-300">
+            Official Firebase API, fast caching, and a clean dark/blue UI. Click a story to open a reader view.
+          </p>
+        </div>
+
+        <div class="inline-flex items-center gap-2 rounded-2xl bg-white/5 p-1 ring-1 ring-white/10" role="tablist" aria-label="HN feeds">
+          <button data-feed="top" class="feed-tab rounded-xl px-3 py-2 text-sm text-neutral-200 hover:bg-white/5" role="tab">Top</button>
+          <button data-feed="new" class="feed-tab rounded-xl px-3 py-2 text-sm text-neutral-200 hover:bg-white/5" role="tab">New</button>
+          <button data-feed="best" class="feed-tab rounded-xl px-3 py-2 text-sm text-neutral-200 hover:bg-white/5" role="tab">Best</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="mx-auto grid max-w-6xl gap-6 px-6 py-8 lg:grid-cols-12">
+    <section class="lg:col-span-7">
+      <div class="rounded-2xl bg-white/5 ring-1 ring-white/10">
+        <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <h2 class="text-sm font-semibold text-neutral-100">Stories</h2>
+          <div class="flex items-center gap-2">
+            <button id="refresh" class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-neutral-200 ring-1 ring-white/10 hover:bg-white/10">
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div id="list" class="divide-y divide-white/10"></div>
+
+        <div id="list-footer" class="px-5 py-4 text-xs text-neutral-400"></div>
+      </div>
+    </section>
+
+    <aside class="lg:col-span-5">
+      <div class="rounded-2xl bg-neutral-950/60 ring-1 ring-white/10">
+        <div class="border-b border-white/10 px-5 py-4">
+          <h2 class="text-sm font-semibold text-neutral-100">Reader</h2>
+          <p class="mt-1 text-xs text-neutral-400">Lightweight view + summary placeholder (MVP).</p>
+        </div>
+
+        <div id="reader" class="p-5"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module">
+    import { fetchFeedItems, formatRelativeTime, hnCommentsUrl, hnItemUrl, setCachedJson } from "../lib/hn";
+
+    const listEl = document.getElementById('list');
+    const footerEl = document.getElementById('list-footer');
+    const readerEl = document.getElementById('reader');
+    const refreshBtn = document.getElementById('refresh');
+    const tabs = Array.from(document.querySelectorAll('.feed-tab'));
+
+    /** @type {'top'|'new'|'best'} */
+    let feed = 'top';
+    /** @type {any[]} */
+    let items = [];
+    let loading = false;
+    /** @type {string|null} */
+    let error = null;
+    /** @type {number|null} */
+    let selectedId = null;
+
+    let controller = null;
+
+    function parseStateFromUrl() {
+      const url = new URL(window.location.href);
+      const f = url.searchParams.get('feed');
+      if (f === 'top' || f === 'new' || f === 'best') feed = f;
+      const id = url.searchParams.get('id');
+      selectedId = id ? Number(id) : null;
+      if (Number.isNaN(selectedId)) selectedId = null;
+    }
+
+    function pushUrl() {
+      const url = new URL(window.location.href);
+      url.searchParams.set('feed', feed);
+      if (selectedId) url.searchParams.set('id', String(selectedId));
+      else url.searchParams.delete('id');
+      history.replaceState({}, '', url);
+    }
+
+    function setActiveTab() {
+      for (const t of tabs) {
+        const isActive = t.dataset.feed === feed;
+        t.setAttribute('aria-selected', String(isActive));
+        t.classList.toggle('bg-blue-500/20', isActive);
+        t.classList.toggle('ring-1', isActive);
+        t.classList.toggle('ring-blue-400/25', isActive);
+      }
+    }
+
+    function clear(el) {
+      while (el.firstChild) el.removeChild(el.firstChild);
+    }
+
+    function el(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text != null) node.textContent = text;
+      return node;
+    }
+
+    function renderList() {
+      clear(listEl);
+      footerEl.textContent = '';
+
+      if (loading) {
+        const wrap = el('div', 'p-5');
+        wrap.appendChild(el('div', 'text-sm font-semibold text-neutral-200', 'Loading stories…'));
+        wrap.appendChild(el('div', 'mt-2 text-xs text-neutral-400', 'Fetching from the official Hacker News Firebase API.'));
+        listEl.appendChild(wrap);
+        return;
+      }
+
+      if (error) {
+        const wrap = el('div', 'p-5');
+        wrap.appendChild(el('div', 'text-sm font-semibold text-rose-200', 'Could not load stories'));
+        wrap.appendChild(el('div', 'mt-2 text-xs text-neutral-400', error));
+        listEl.appendChild(wrap);
+        return;
+      }
+
+      if (!items.length) {
+        const wrap = el('div', 'p-5 text-sm text-neutral-300', 'No stories to show.');
+        listEl.appendChild(wrap);
+        return;
+      }
+
+      for (const item of items) {
+        const row = el('div', 'group flex gap-4 px-5 py-4 hover:bg-white/[0.04]');
+
+        const metaCol = el('div', 'w-14 shrink-0 text-right');
+        const score = el('div', 'text-sm font-semibold text-neutral-100', String(item.score ?? 0));
+        const scoreLabel = el('div', 'text-[11px] text-neutral-400', 'points');
+        metaCol.appendChild(score);
+        metaCol.appendChild(scoreLabel);
+
+        const mainCol = el('div', 'min-w-0 flex-1');
+
+        const title = el('button', 'text-left text-sm font-semibold text-neutral-100 hover:text-blue-200');
+        title.type = 'button';
+        title.textContent = item.title ?? '(untitled)';
+        title.addEventListener('click', () => {
+          selectedId = item.id;
+          pushUrl();
+          renderReader();
+          highlightSelected();
+        });
+
+        const sub = el('div', 'mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400');
+        const when = formatRelativeTime(item.time);
+        if (when) sub.appendChild(el('span', '', when));
+        sub.appendChild(el('span', 'text-neutral-600', '·'));
+        sub.appendChild(el('span', '', `${item.descendants ?? 0} comments`));
+        sub.appendChild(el('span', 'text-neutral-600', '·'));
+        sub.appendChild(el('span', '', `by ${item.by ?? 'unknown'}`));
+
+        mainCol.appendChild(title);
+        mainCol.appendChild(sub);
+
+        const linkCol = el('div', 'shrink-0');
+        const open = el('a', 'inline-flex items-center rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-neutral-200 ring-1 ring-white/10 hover:bg-white/10', 'Open');
+        open.href = hnItemUrl(item);
+        open.target = '_blank';
+        open.rel = 'noreferrer';
+        linkCol.appendChild(open);
+
+        row.appendChild(metaCol);
+        row.appendChild(mainCol);
+        row.appendChild(linkCol);
+
+        row.dataset.id = String(item.id);
+        listEl.appendChild(row);
+      }
+
+      footerEl.textContent = `Showing ${items.length} stories from “${feed}”. Cached for faster reloads.`;
+    }
+
+    function highlightSelected() {
+      const rows = Array.from(listEl.querySelectorAll('[data-id]'));
+      for (const r of rows) {
+        const isSel = selectedId && r.dataset.id === String(selectedId);
+        r.classList.toggle('bg-blue-500/10', Boolean(isSel));
+        r.classList.toggle('ring-1', Boolean(isSel));
+        r.classList.toggle('ring-blue-400/20', Boolean(isSel));
+      }
+    }
+
+    function renderReader() {
+      clear(readerEl);
+
+      if (!selectedId) {
+        const box = el('div', 'rounded-xl bg-white/5 p-4 ring-1 ring-white/10');
+        box.appendChild(el('div', 'text-sm font-semibold text-neutral-100', 'Select a story'));
+        box.appendChild(el('div', 'mt-2 text-xs text-neutral-400', 'Click any title to open details here.'));
+        readerEl.appendChild(box);
+        return;
+      }
+
+      const item = items.find((x) => x.id === selectedId);
+
+      if (!item) {
+        const box = el('div', 'rounded-xl bg-white/5 p-4 ring-1 ring-white/10');
+        box.appendChild(el('div', 'text-sm font-semibold text-neutral-100', 'Story not in current list'));
+        box.appendChild(el('div', 'mt-2 text-xs text-neutral-400', 'Try switching feeds or refreshing.'));
+        readerEl.appendChild(box);
+        return;
+      }
+
+      const header = el('div', '');
+      header.appendChild(el('div', 'text-sm font-semibold text-neutral-50', item.title ?? '(untitled)'));
+
+      const meta = el('div', 'mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400');
+      const when = formatRelativeTime(item.time);
+      if (when) meta.appendChild(el('span', '', when));
+      meta.appendChild(el('span', 'text-neutral-600', '·'));
+      meta.appendChild(el('span', '', `${item.score ?? 0} points`));
+      meta.appendChild(el('span', 'text-neutral-600', '·'));
+      meta.appendChild(el('span', '', `${item.descendants ?? 0} comments`));
+      header.appendChild(meta);
+
+      const actions = el('div', 'mt-4 flex flex-wrap gap-2');
+      const openOriginal = el('a', 'inline-flex items-center rounded-xl bg-blue-500 px-4 py-2 text-xs font-semibold text-neutral-950 hover:bg-blue-400', 'Open original');
+      openOriginal.href = hnItemUrl(item);
+      openOriginal.target = '_blank';
+      openOriginal.rel = 'noreferrer';
+
+      const openComments = el('a', 'inline-flex items-center rounded-xl bg-white/5 px-4 py-2 text-xs font-semibold text-neutral-100 ring-1 ring-white/10 hover:bg-white/10', 'HN comments');
+      openComments.href = hnCommentsUrl(item.id);
+      openComments.target = '_blank';
+      openComments.rel = 'noreferrer';
+
+      const clearSel = el('button', 'inline-flex items-center rounded-xl bg-white/5 px-4 py-2 text-xs font-semibold text-neutral-100 ring-1 ring-white/10 hover:bg-white/10', 'Clear');
+      clearSel.type = 'button';
+      clearSel.addEventListener('click', () => {
+        selectedId = null;
+        pushUrl();
+        renderReader();
+        highlightSelected();
+      });
+
+      actions.appendChild(openOriginal);
+      actions.appendChild(openComments);
+      actions.appendChild(clearSel);
+
+      const summary = el('div', 'mt-5 rounded-xl bg-neutral-950/60 p-4 ring-1 ring-white/10');
+      summary.appendChild(el('div', 'text-xs font-semibold text-neutral-100', 'Summary (placeholder)'));
+      summary.appendChild(
+        el(
+          'div',
+          'mt-2 text-xs leading-relaxed text-neutral-300',
+          'MVP: article summarization is not yet enabled. This is where a generated summary, key bullets, and reading time estimate would appear.'
+        )
+      );
+
+      const urlBox = el('div', 'mt-3 rounded-xl bg-white/5 p-3 ring-1 ring-white/10');
+      const urlLabel = el('div', 'text-[11px] font-semibold text-neutral-200', 'URL');
+      const urlText = el('div', 'mt-1 break-words text-xs text-neutral-300', hnItemUrl(item));
+      urlBox.appendChild(urlLabel);
+      urlBox.appendChild(urlText);
+
+      readerEl.appendChild(header);
+      readerEl.appendChild(actions);
+      readerEl.appendChild(summary);
+      readerEl.appendChild(urlBox);
+    }
+
+    async function load({ bustCache = false } = {}) {
+      if (controller) controller.abort();
+      controller = new AbortController();
+
+      loading = true;
+      error = null;
+      renderList();
+      setActiveTab();
+
+      try {
+        if (bustCache) {
+          // best-effort: overwrite cached ids so next load refetches
+          setCachedJson(`ids:${feed}`, []);
+        }
+        items = await fetchFeedItems({ feed, limit: 30, concurrency: 10, ttlMs: 5 * 60 * 1000, abort: controller.signal });
+        // Defensive: remove nulls (HN can return null for deleted items)
+        items = items.filter(Boolean);
+      } catch (e) {
+        if (e?.name === 'AbortError') return;
+        error = e?.message ? String(e.message) : 'Unknown error.';
+      } finally {
+        loading = false;
+        renderList();
+        renderReader();
+        highlightSelected();
+      }
+    }
+
+    for (const t of tabs) {
+      t.addEventListener('click', () => {
+        const next = t.dataset.feed;
+        if (next !== 'top' && next !== 'new' && next !== 'best') return;
+        feed = next;
+        selectedId = null;
+        pushUrl();
+        load();
+      });
+    }
+
+    refreshBtn.addEventListener('click', () => load({ bustCache: true }));
+
+    parseStateFromUrl();
+    setActiveTab();
+    renderList();
+    renderReader();
+    load();
+  </script>
+</BaseLayout>
